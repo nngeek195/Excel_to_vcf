@@ -45,7 +45,7 @@ async def start(update: Update, context: CallbackContext) -> None:
     welcome_message = (
         "Hello! 📋 I'm your Excel to VCF converter bot.\n\n"
         "Please send me an Excel file (.xlsx) with contacts in this format:\n"
-        "• Name (required)\n"
+        "• Name (required)\n (if you need you can add three separated columns as First Name , Middle Name , Last Name)"
         "• Phone (required)\n"
         "• Email (optional)\n\n"
         "I'll convert it to a VCF file you can import into your contacts! ✨"
@@ -57,20 +57,20 @@ async def handle_file(update: Update, context: CallbackContext) -> None:
     processing_message = await update.message.reply_text(
         "Received your file! 📥 Processing..."
     )
-    
+
     # Download and process file
     file = update.message.document
     file_path = f"{file.file_name}"
     vcf_path = file_path.replace('.xlsx', '.vcf')
-    
+
     try:
         # Download file
         bot_file = await context.bot.get_file(file.file_id)
         await bot_file.download_to_drive(file_path)
-        
+
         # Convert to VCF
         excel_to_vcf(file_path, vcf_path)
-        
+
         # Send results
         with open(vcf_path, 'rb') as vcf:
             await update.message.reply_document(
@@ -78,12 +78,12 @@ async def handle_file(update: Update, context: CallbackContext) -> None:
                 filename=f"{file.file_name.replace('.xlsx', '.vcf')}",
                 caption="✅ Conversion complete!"
             )
-        
+
         # Final message
         await update.message.reply_text(
             "Thank you for using the bot! 😊 Let me know if you need anything else."
         )
-        
+
     except Exception as e:
         await update.message.reply_text(f"❌ Error: {str(e)}")
     finally:
