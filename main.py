@@ -7,15 +7,38 @@ BOT_TOKEN = "7951513424:AAF9EDtJu0WOEJVElihuKJxU1MSwXsrl4ug"
 
 def excel_to_vcf(file_path, output_path):
     df = pd.read_excel(file_path, engine='openpyxl')
+    
+    # Combine name columns if they exist
+    if all(col in df.columns for col in ['First Name', 'Middle Name', 'Last Name']):
+        df['Name'] = (
+            df['First Name'].fillna('') + 
+            ' ' + df['Middle Name'].fillna('') + 
+            ' ' + df['Last Name'].fillna('')
+        ).str.strip()
+    elif all(col in df.columns for col in ['First Name', 'Last Name']):
+        df['Name'] = (
+            df['First Name'].fillna('') + 
+            ' ' + df['Last Name'].fillna('')
+        ).str.strip()
+    elif 'Name' not in df.columns:
+        raise ValueError("No valid name columns found. Please include 'Name' or 'First Name'/'Last Name'.")
+
     with open(output_path, 'w') as vcf:
         for _, row in df.iterrows():
             vcf.write("BEGIN:VCARD\nVERSION:3.0\n")
+            
+            # Write Name
             if 'Name' in df.columns and pd.notna(row['Name']):
                 vcf.write(f"FN:{row['Name']}\n")
+            
+            # Write Phone
             if 'Phone' in df.columns and pd.notna(row['Phone']):
                 vcf.write(f"TEL;TYPE=CELL:{row['Phone']}\n")
+            
+            # Write Email
             if 'Email' in df.columns and pd.notna(row['Email']):
                 vcf.write(f"EMAIL:{row['Email']}\n")
+            
             vcf.write("END:VCARD\n")
 
 async def start(update: Update, context: CallbackContext) -> None:
