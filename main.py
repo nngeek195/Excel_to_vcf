@@ -3,7 +3,7 @@ import pandas as pd
 from telegram import Update, Bot
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
-BOT_TOKEN = "7951513424:AAF9EDtJu0WOEJVElihuKJxU1MSwXsrl4ug"
+BOT_TOKEN = "#####################################"
 
 def excel_to_vcf(file_path, output_path):
     df = pd.read_excel(file_path, engine='openpyxl')
